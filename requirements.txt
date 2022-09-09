@@ -1,8 +1,5 @@
-numpy >= 1.9.0
-pandas >= 0.19.2
-gensim >= 2.3.0
-keras == 2.0.8
-scipy == 1.0.1
-scikit-learn == 0.18
-tensorflow  == 2.7.2
-tensorflow-gpu == 2.7.2
+numpy
+pandas
+keras==2.0.8
+tensorflow==1.13.2
+tensorflow-gpu==1.13.2
