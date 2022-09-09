@@ -8,7 +8,7 @@ from attention import Attention
 from keras.models import load_model
 from keras.utils.generic_utils import CustomObjectScope
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 curDir = os.path.dirname(os.path.realpath(__file__)) + "/"
 HLA_seq = pd.read_csv(curDir + "model/MHC_pseudo.dat", sep="\t")
 seqs = {}
@@ -45,6 +45,7 @@ aa_idx = {
 def run_model(i, X_test):
     score = np.zeros((5, len(X_test)))
     with CustomObjectScope({"Attention": Attention}):
+        print(curDir + "model/binding_model" + str(i + 1) + ".hdf5")
         model = load_model(curDir + "model/binding_model" + str(i + 1) + ".hdf5")
         score[i, :] = np.squeeze(model.predict_proba(X_test))
     return score[i, :]
@@ -111,12 +112,23 @@ def deephlapan_main(opt):
     else:
         X_test = read_and_prepare_single(peptide, hla)
 
-    pool = mp.Pool(mp.cpu_count())
+    # pool = mp.Pool(1)
+    # for i in range(5):
+    #    pool.apply_async(run_model, args=(i, X_test), callback=collect_result)
+    #    pool.apply_async(run_model1, args=(i, X_test), callback=collect_result1)
+    # pool.close()
+    # pool.join()
+    predScores = []
+    predScores1 = []
     for i in range(5):
-        pool.apply_async(run_model, args=(i, X_test), callback=collect_result)
-        pool.apply_async(run_model1, args=(i, X_test), callback=collect_result1)
-    pool.close()
-    pool.join()
+        print(i)
+        result = run_model(i, X_test)
+        print(f"result: {result}")
+        predScores.append(result)
+        result1 = run_model1(i, X_test)
+        print(f"result1: {result1}")
+        predScores1.append(result1)
+
     result = np.average(predScores, axis=0)
     result1 = np.average(predScores1, axis=0)
     with open(WD + "/" + fname + "_predicted_result.csv", "w") as f:
