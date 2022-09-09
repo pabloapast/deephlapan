@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/local/bin/python
 
 from deephlapan.deephlapan_main import *
 from deephlapan.parse_args import *
